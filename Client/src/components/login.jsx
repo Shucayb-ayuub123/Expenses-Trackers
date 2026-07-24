@@ -12,17 +12,17 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [focused, setFocused] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
-
-  const API = import.meta.env.VITE_BACKEND_URL
+  
   const navigate = useNavigate()
-
+  const API = import.meta.env.VITE_BACKEND_URL
+  
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-
+  axios.defaults.withCredentials=true
     if (!formData.email.includes('@')) {
       toast.error('Please enter a valid email with @')
       return
@@ -32,8 +32,9 @@ const Signup = () => {
     try {
       const response = await axios.post(`${API}/api/Auth/Login`, formData)
       if (response.data.success) {
-        
-        navigate('/Home')
+          
+        navigate('/')
+
       } else {
         toast.error(response.data.message)
       }
@@ -74,7 +75,7 @@ const Signup = () => {
         >
           <div className="space-y-5">
             {/* Username */}
-           
+
 
             {/* Email */}
             <div className="group">
@@ -172,7 +173,7 @@ const Signup = () => {
           </p>
         </form>
 
-       
+
       </div>
     </div>
   )

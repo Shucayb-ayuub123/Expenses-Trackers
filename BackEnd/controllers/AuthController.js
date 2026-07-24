@@ -309,10 +309,12 @@ export const Logout = (req,res) => {
             path: "/"
 
         })
+        return res.json({ success: true, message: "Logged out" })
     } catch (error) {
          return res.json({ success: false, message: error.message })
     }
 }
+
 
 export const isAuth = (req,res) => {
     try {

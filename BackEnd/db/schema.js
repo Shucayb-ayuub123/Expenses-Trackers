@@ -1,4 +1,4 @@
-import { boolean, pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import { boolean, date, decimal, pgTable, serial, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 
 export const usersTable = pgTable("users", {
     id: uuid("id")
@@ -28,3 +28,13 @@ export const usersTable = pgTable("users", {
     verificationTokenExpires: timestamp("verificationTokenExpires")
 
 });
+
+export const Transactions = pgTable("transaction", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    description: text("description").notNull(),
+    type: varchar("type", {
+        length: 255
+    }).notNull(),
+    amount: decimal("amount").notNull(),
+    Date1: timestamp("Date1").notNull()
+})

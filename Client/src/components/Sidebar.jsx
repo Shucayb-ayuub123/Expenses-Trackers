@@ -1,6 +1,7 @@
-import React from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useTheme } from '../context/ThemeContext'
 import axios from 'axios'
+
 const navItems = [
     {
         label: 'Dashboard',
@@ -41,76 +42,117 @@ const navItems = [
     },
 ]
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
     const location = useLocation()
     const navigate = useNavigate()
+    const { isDark } = useTheme()
 
     const handleLogout = async () => {
         const API = import.meta.env.VITE_BACKEND_URL
+        axios.defaults.withCredentials = true
         try {
-            await axios.post(`${API}/api/Auth/Logout`, {}, { withCredentials: true })
+            const respon = await axios.post(`${API}/api/Auth/Logout`, { withCredentials: true })
+            if (respon.data.success) {
+                navigate('/Login')
+            }
         } catch (error) {
             console.error(error)
         }
-        navigate('/Login')
+    }
 
+    const handleNavClick = () => {
+        if (window.innerWidth < 1024) {
+            onClose()
+        }
     }
 
     return (
-        <div className="h-screen w-64 flex flex-col bg-slate-900/60 backdrop-blur-xl border-r border-slate-700/40 p-5 relative overflow-hidden">
-            {/* Decorative background glow */}
-            <div className="absolute -top-20 -left-20 w-60 h-60 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-20 -right-20 w-60 h-60 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
+        <>
+            {isOpen && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+                    onClick={onClose}
+                />
+            )}
 
-            {/* Logo */}
-            <div className="relative z-10 flex items-center gap-3 mb-10">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/30 transition-transform duration-300 hover:scale-110">
-                    <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <span className="text-lg font-bold text-white tracking-tight">
-                    Expense<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Tracker</span>
-                </span>
-            </div>
+            <div className={`fixed inset-y-0 left-0 z-50 w-72 flex flex-col backdrop-blur-xl border-r p-5 transition-transform duration-300 lg:relative lg:translate-x-0 lg:z-auto ${
+                isOpen ? 'translate-x-0' : '-translate-x-full'
+            } ${isDark ? 'bg-slate-800 border-slate-700/40' : 'bg-white border-slate-200'}`}>
+                <div className={`absolute -top-20 -left-20 w-60 h-60 rounded-full blur-3xl pointer-events-none ${
+                    isDark ? 'bg-blue-600/10' : 'bg-blue-400/10'
+                }`} />
+                <div className={`absolute -bottom-20 -right-20 w-60 h-60 rounded-full blur-3xl pointer-events-none ${
+                    isDark ? 'bg-cyan-500/5' : 'bg-cyan-300/10'
+                }`} />
 
-            {/* Navigation */}
-            <nav className="relative z-10 flex-1 space-y-1">
-                {navItems.map((item) => {
-                    const isActive = location.pathname === item.to
-                    return (
-                        <Link
-                            key={item.to}
-                            to={item.to}
-                            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 group ${isActive
-                                    ? 'bg-blue-600/15 text-blue-400 border border-blue-500/20 shadow-lg shadow-blue-500/10'
-                                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60 border border-transparent'
-                                }`}
-                        >
-                            <span className={`transition-colors duration-300 ${isActive ? 'text-blue-400' : 'text-slate-500 group-hover:text-blue-400'}`}>
-                                {item.icon}
-                            </span>
-                            {item.label}
-                        </Link>
-                    )
-                })}
-            </nav>
-
-            {/* Logout */}
-            <div className="relative z-10 pt-4 border-t border-slate-700/40">
-                <button
-                    onClick={handleLogout}
-                    className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all duration-300 group cursor-pointer"
-                >
-                    <span className="text-slate-500 group-hover:text-red-400 transition-colors duration-300">
+                <div className="relative z-10 flex items-center justify-between mb-10">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/30 transition-transform duration-300 hover:scale-110">
+                            <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <span className={`text-lg font-bold tracking-tight ${
+                            isDark ? 'text-white' : 'text-slate-800'
+                        }`}>
+                            Expense<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Tracker</span>
+                        </span>
+                    </div>
+                    <button
+                        onClick={onClose}
+                        className={`lg:hidden p-1 rounded-lg transition-colors ${
+                            isDark ? 'text-slate-400 hover:text-white hover:bg-slate-700' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'
+                        }`}
+                    >
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>
-                    </span>
-                    Logout
-                </button>
+                    </button>
+                </div>
+
+                <nav className="relative z-10 flex-1 space-y-1">
+                    {navItems.map((item) => {
+                        const isActive = location.pathname === item.to
+                        return (
+                            <Link
+                                key={item.to}
+                                to={item.to}
+                                onClick={handleNavClick}
+                                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 group ${isActive
+                                    ? 'bg-blue-600/15 text-blue-400 border border-blue-500/20 shadow-lg shadow-blue-500/10'
+                                    : isDark
+                                        ? 'text-slate-400 hover:text-white hover:bg-slate-800/60 border border-transparent'
+                                        : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100 border border-transparent'
+                                    }`}
+                            >
+                                <span className={`transition-colors duration-300 ${isActive ? 'text-blue-400' : isDark ? 'text-slate-500 group-hover:text-blue-400' : 'text-slate-400 group-hover:text-blue-500'}`}>
+                                    {item.icon}
+                                </span>
+                                {item.label}
+                            </Link>
+                        )
+                    })}
+                </nav>
+
+                <div className="relative z-10 pt-4 border-t border-slate-700/40">
+                    <button
+                        onClick={handleLogout}
+                        className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium border border-transparent transition-all duration-300 group cursor-pointer ${
+                            isDark
+                                ? 'text-slate-400 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20'
+                                : 'text-slate-500 hover:text-red-500 hover:bg-red-50 hover:border-red-200'
+                        }`}
+                    >
+                        <span className={`transition-colors duration-300 ${isDark ? 'text-slate-500 group-hover:text-red-400' : 'text-slate-400 group-hover:text-red-500'}`}>
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                            </svg>
+                        </span>
+                        Logout
+                    </button>
+                </div>
             </div>
-        </div>
+        </>
     )
 }
 

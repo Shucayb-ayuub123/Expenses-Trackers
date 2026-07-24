@@ -1,8 +1,8 @@
 
-import jwt from "express"
+import jwt from "jsonwebtoken"
 import "dotenv/config"
-export const AuthUser = (req, res) => {
-    const token = req.body
+export const AuthUser = (req, res, next) => {
+    const token = req.cookies.token
 
     if (!token) {
         return res.json({
@@ -14,8 +14,8 @@ export const AuthUser = (req, res) => {
     try {
         
         const tokenDecode = jwt.verify(token , process.env.secretKey)
-
-        return res.json({success : true})
+        req.user = tokenDecode
+        next()
     } catch (error) {
         
         return res.json({success : false , message : "Not in code"})
