@@ -50,7 +50,7 @@ const Transactions = () => {
     const handleSubmit =  async (e) => {
         e.preventDefault()
 
-        const response = await  axios.post(`${}`)
+        // const response = await  axios.post(`${}`)
          
         if (editingIndex !== null) {
             const updated = [...transactions]
