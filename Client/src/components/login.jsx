@@ -12,38 +12,47 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [focused, setFocused] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
-  
+
   const navigate = useNavigate()
   const API = import.meta.env.VITE_BACKEND_URL
-  
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-  axios.defaults.withCredentials=true
-    if (!formData.email.includes('@')) {
-      toast.error('Please enter a valid email with @')
-      return
+    e.preventDefault();
+
+    if (!formData.email.includes("@")) {
+      toast.error("Please enter a valid email with @");
+      return;
     }
 
-    setIsLoading(true)
-    try {
-      const response = await axios.post(`${API}/api/Auth/Login`, formData)
-      if (response.data.success) {
-          
-        navigate('/')
+    setIsLoading(true);
 
+    try {
+      const response = await axios.post(
+        `${API}/api/Auth/Login`,
+        formData,
+        {
+          withCredentials: true,
+        }
+      );
+
+      console.log("LOGIN RESPONSE:", response.data);
+
+      if (response.data.success) {
+        navigate("/");
       } else {
-        toast.error(response.data.message)
+        toast.error(response.data.message);
       }
     } catch (error) {
-      toast.error(error.message)
+      console.log("LOGIN ERROR:", error);
+      toast.error(error.response?.data?.message || error.message);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0a0e1a] relative overflow-hidden px-4">
