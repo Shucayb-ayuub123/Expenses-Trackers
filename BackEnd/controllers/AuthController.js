@@ -22,7 +22,6 @@ export const singUp = async (req, res) => {
 
         const { username, email, password } = req.body
 
-        console.log(username, email, password)
         if (!username || !email || !password) {
             return res.json({
                 success: false,
@@ -74,9 +73,13 @@ export const singUp = async (req, res) => {
                     </div>
                 `
             })
+
+
         } catch (emailError) {
             console.log("Email sending failed:", emailError.message)
         }
+
+
 
         return res.json({
             success: true,
@@ -135,6 +138,24 @@ export const verifyEmail = async (req, res) => {
             verificationToken: null,
             verificationTokenExpires: null
         }).where(eq(usersTable.id, user.id))
+
+          const authToken = jwt.sign({
+            id: user.id,
+            email: user.email
+        },
+            process.env.secretKey,
+
+            {
+                expiresIn: "7d"
+            }
+        )
+
+         res.cookie("token", authToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV == "production",
+            sameSite: process.env.NODE_ENV == "production" ? "none" : "lax",
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        })
 
         return res.json({
             success: true,
@@ -230,7 +251,6 @@ export const Login = async (req, res) => {
 
         const { email, password } = req.body
 
-        console.log(email, password)
         if (!email || !password) {
             return res.json({
                 success: false,

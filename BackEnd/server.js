@@ -1,7 +1,10 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import AuthRoute from "../BackEnd/routes/AuthRoute.js";
+import AuthRoute from "./routes/AuthRoute.js";
+import TranRoute from "./routes/TranRoute.js";
+import CategoryRoute from "./routes/CategoryRoute.js";
+import ReportRoute from "./routes/ReportRoute.js";
 
 const app = express();
 
@@ -14,6 +17,9 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/Auth", AuthRoute);
+app.use("/transactions", TranRoute);
+app.use("/categories", CategoryRoute);
+app.use("/reports", ReportRoute);
 
 app.listen(4000, () =>
     console.log("server running http://localhost:4000")
