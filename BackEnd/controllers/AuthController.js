@@ -6,7 +6,18 @@ import bcrypt from "bcrypt"
 import crypto from "crypto"
 import nodemailer from "nodemailer"
 import "dotenv/config"
-const FRONTEND_URL = process.env.FRONTEND_URL || " http://localhost:5173"
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173"
+
+const cookieOptions = (req) => {
+    const origin = req.headers.origin
+    const crossSite = origin && new URL(origin).host !== req.headers.host
+    return {
+        httpOnly: true,
+        secure: crossSite || process.env.NODE_ENV === "production",
+        sameSite: crossSite ? "none" : "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000
+    }
+}
 
 const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -150,12 +161,7 @@ export const verifyEmail = async (req, res) => {
             }
         )
 
-         res.cookie("token", authToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV == "production",
-            sameSite: process.env.NODE_ENV == "production" ? "none" : "lax",
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        })
+         res.cookie("token", authToken, cookieOptions(req))
 
         return res.json({
             success: true,
@@ -296,12 +302,7 @@ export const Login = async (req, res) => {
             }
         )
 
-        res.cookie("token", token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV == "production",
-            sameSite: process.env.NODE_ENV == "production" ? "none" : "lax",
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        })
+        res.cookie("token", token, cookieOptions(req))
 
         return res.json({
             success: true,
@@ -322,12 +323,9 @@ export const Login = async (req, res) => {
 export const Logout = (req,res) => {
 
     try {
-        res.clearCookie("token" ,{
-           httpOnly: true,
-            secure: process.env.NODE_ENV == "production",
-            sameSite: process.env.NODE_ENV == "production" ? "none" : "lax",
+        res.clearCookie("token", {
+            ...cookieOptions(req),
             path: "/"
-
         })
         return res.json({ success: true, message: "Logged out" })
     } catch (error) {
