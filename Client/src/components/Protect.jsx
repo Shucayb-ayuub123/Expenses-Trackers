@@ -7,9 +7,9 @@ const Protect = ({ children }) => {
     const [isAuth, setIsAuth] = useState(null);
 
     const API = import.meta.env.VITE_BACKEND_URL;
-    axios.defaults.withCredentials = true
     useEffect(() => {
-
+        
+        axios.defaults.withCredentials = true
         const checkAuth = async () => {
             try {
                 const response = await axios.get(`${API}/api/Auth/isAuth`)
